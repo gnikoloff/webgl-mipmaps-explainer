@@ -1,0 +1,35 @@
+{
+  "name": "webgl-mipmaps-explainer",
+  "version": "0.0.1",
+  "description": "Explore mipmap and anisotropic filtering via WebGL2",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^2.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gnikoloff/webgl-mipmaps-explainer.git"
+  },
+  "keywords": [
+    "webgl",
+    "webgl2",
+    "mipmap",
+    "anisotropic",
+    "texturing"
+  ],
+  "author": {
+    "name": "Georgi Nikolov",
+    "email": "nikoloffgeorgi@gmail.com",
+    "url": "https://georgi-nikolov.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gnikoloff/webgl-mipmaps-explainer/issues"
+  },
+  "homepage": "https://github.com/gnikoloff/webgl-mipmaps-explainer#readme"
+}
