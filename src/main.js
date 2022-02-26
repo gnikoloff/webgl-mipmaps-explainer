@@ -1,9 +1,11 @@
 import { mat4, vec3 } from 'gl-matrix'
 import createProgram, { mapToRange } from './helpers'
+import { makeCustomMipmapTexture } from './make-custom-mipmap-texture'
 import './style.css'
 
 import VERTEX_SHADER from './shader.vert'
 import FRAGMENT_SHADER from './shader.frag'
+import { makeMipmapTexture } from './make-mipmap-texture'
 
 // prettier-ignore
 const PLANE_VERTICES = new Float32Array([
@@ -20,6 +22,9 @@ const $canvas = document.getElementById('c')
 
 /** @type {WebGL2RenderingContext} */
 const gl = $canvas.getContext('webgl2')
+
+const autoMipmapTexture = makeMipmapTexture(gl)
+const customMipmapTexture = makeCustomMipmapTexture(gl)
 
 const orthoPlaneState = {}
 const perspPlaneState = {}
@@ -63,7 +68,7 @@ const perspPlaneState = {}
   gl.bindVertexArray(null)
 
   const projectionMatrix = mat4.create()
-  mat4.ortho(projectionMatrix, -1, 1, -1, 1, 0.1, 30)
+  mat4.ortho(projectionMatrix, -1, 1, 1, -1, 0.1, 30)
 
   const eyePos = vec3.fromValues(0, 0, 1)
   const lookAt = vec3.fromValues(0, 0, 0)
@@ -81,11 +86,20 @@ const perspPlaneState = {}
     'uProjectionViewMatrix',
   )
   const uModelMatrix = gl.getUniformLocation(program, 'uModelMatrix')
+  const uAutoMipmapTexture = gl.getUniformLocation(
+    program,
+    'uAutoMipmapTexture',
+  )
+  const uUVScale = gl.getUniformLocation(program, 'uUVScale')
+  const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
 
   gl.useProgram(program)
 
   gl.uniformMatrix4fv(uProjectionViewMatrix, false, projectionViewMatrix)
   gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix)
+  gl.uniform1i(uAutoMipmapTexture, 0)
+  gl.uniform1f(uUVScale, 1)
+  gl.uniform2f(uTexOffset, 0, 0)
 
   gl.useProgram(null)
 
@@ -94,6 +108,9 @@ const perspPlaneState = {}
   orthoPlaneState.uniforms = {
     uProjectionViewMatrix,
     uModelMatrix,
+    uAutoMipmapTexture,
+    uUVScale,
+    uTexOffset,
   }
   orthoPlaneState.matrix = {
     projectionViewMatrix,
@@ -148,7 +165,7 @@ const perspPlaneState = {}
     30,
   )
 
-  const eyePos = vec3.fromValues(0, -5, 2)
+  const eyePos = vec3.fromValues(0, -3, 0.5)
   const lookAt = vec3.fromValues(0, 0, 0)
   const up = vec3.fromValues(0, 1, 0)
   const viewMatrix = mat4.create()
@@ -158,18 +175,27 @@ const perspPlaneState = {}
   mat4.mul(projectionViewMatrix, projectionMatrix, viewMatrix)
 
   const modelMatrix = mat4.create()
-  mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(10, 3, 1))
+  mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(3, 3, 1))
 
   const uProjectionViewMatrix = gl.getUniformLocation(
     program,
     'uProjectionViewMatrix',
   )
   const uModelMatrix = gl.getUniformLocation(program, 'uModelMatrix')
+  const uAutoMipmapTexture = gl.getUniformLocation(
+    program,
+    'uAutoMipmapTexture',
+  )
+  const uUVScale = gl.getUniformLocation(program, 'uUVScale')
+  const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
 
   gl.useProgram(program)
 
   gl.uniformMatrix4fv(uProjectionViewMatrix, false, projectionViewMatrix)
   gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix)
+  gl.uniform1i(uAutoMipmapTexture, 0)
+  gl.uniform1f(uUVScale, 3)
+  gl.uniform2f(uTexOffset, 0, 0)
 
   gl.useProgram(null)
 
@@ -178,6 +204,9 @@ const perspPlaneState = {}
   perspPlaneState.uniforms = {
     uProjectionViewMatrix,
     uModelMatrix,
+    uAutoMipmapTexture,
+    uUVScale,
+    uTexOffset,
   }
   perspPlaneState.matrix = {
     projectionViewMatrix,
@@ -231,11 +260,18 @@ function renderFrame(ts) {
     gl.bindVertexArray(perspPlaneState.vao)
 
     gl.useProgram(perspPlaneState.program)
+
+    const texSpeed = ts * 0.2
+    gl.uniform2f(perspPlaneState.uniforms.uTexOffset, 0, texSpeed)
+
     gl.uniformMatrix4fv(
       perspPlaneState.uniforms.uModelMatrix,
       false,
       perspPlaneState.matrix.modelMatrix,
     )
+
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, customMipmapTexture)
 
     gl.bindVertexArray(perspPlaneState.vao)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
@@ -244,7 +280,7 @@ function renderFrame(ts) {
   // draw ortho plane
   {
     const rotation = mapToRange(pulse, 0, 1, -Math.PI * 0.25, 0)
-    const scale = mapToRange(pulse, 0, 1, 0.1, 1)
+    const scale = mapToRange(pulse, 0, 1, 0.075, 1)
 
     mat4.identity(orthoPlaneState.matrix.modelMatrix)
     mat4.rotateZ(
@@ -266,8 +302,11 @@ function renderFrame(ts) {
       orthoPlaneState.matrix.modelMatrix,
     )
 
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, customMipmapTexture)
+
     gl.bindVertexArray(orthoPlaneState.vao)
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 }
 

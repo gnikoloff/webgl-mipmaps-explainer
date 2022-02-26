@@ -1,10 +1,14 @@
 #version 300 es
 precision highp float;
 
+uniform sampler2D uAutoMipmapTexture;
+uniform float uUVScale;
+uniform vec2 uTexOffset;
+
 in vec2 vUV;
 
 out vec4 finalColor;
 
 void main () {
-  finalColor = vec4(vUV, 0.0, 1.0);
+  finalColor = texture(uAutoMipmapTexture, vUV * uUVScale + uTexOffset);
 }
