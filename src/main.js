@@ -6,6 +6,7 @@ import './style.css'
 import VERTEX_SHADER from './shader.vert'
 import FRAGMENT_SHADER from './shader.frag'
 import { makeMipmapTexture } from './make-mipmap-texture'
+import { Pane } from 'tweakpane'
 
 // prettier-ignore
 const PLANE_VERTICES = new Float32Array([
@@ -15,6 +16,35 @@ const PLANE_VERTICES = new Float32Array([
    1.0, -1.0,    1.0, 0.0,
   -1.0, -1.0,    0.0, 0.0,
 ])
+
+const ORTHO_PLANE_PARAMS = {
+  customMipmaps: false,
+  shouldRender: true,
+}
+const PERSP_PLANE_PARAMS = { customMipmaps: false, shouldRender: true }
+
+const pane = new Pane()
+pane.element.parentNode.style.width = '450px'
+
+const orthoPlaneFolder = pane.addFolder({
+  title: 'Orthographic Plane',
+})
+orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'customMipmaps', {
+  label: 'Custom mipmaps',
+})
+orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'shouldRender', {
+  label: 'Should render',
+})
+
+const perpPlaneFolder = pane.addFolder({
+  title: 'Perspective plane',
+})
+perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'customMipmaps', {
+  label: 'Custom mipmaps',
+})
+perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'shouldRender', {
+  title: 'Should render',
+})
 
 let oldTime = 0
 
@@ -233,7 +263,7 @@ function renderFrame(ts) {
   const pulse = (1 + Math.sin(Math.PI * 2 * ts * 0.1)) / 2
 
   // draw perspective floor plane
-  {
+  if (PERSP_PLANE_PARAMS.shouldRender) {
     const rotation = mapToRange(pulse, 0, 1, 0, Math.PI * 0.25)
     const scale = mapToRange(pulse, 0, 1, 0.1, 1)
 
@@ -271,14 +301,18 @@ function renderFrame(ts) {
     )
 
     gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, customMipmapTexture)
+    gl.bindTexture(
+      gl.TEXTURE_2D,
+      PERSP_PLANE_PARAMS.customMipmaps
+        ? customMipmapTexture
+        : autoMipmapTexture,
+    )
 
     gl.bindVertexArray(perspPlaneState.vao)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
-  // draw ortho plane
-  {
+  if (ORTHO_PLANE_PARAMS.shouldRender) {
     const rotation = mapToRange(pulse, 0, 1, -Math.PI * 0.25, 0)
     const scale = mapToRange(pulse, 0, 1, 0.075, 1)
 
@@ -303,10 +337,15 @@ function renderFrame(ts) {
     )
 
     gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, customMipmapTexture)
+    gl.bindTexture(
+      gl.TEXTURE_2D,
+      ORTHO_PLANE_PARAMS.customMipmaps
+        ? customMipmapTexture
+        : autoMipmapTexture,
+    )
 
     gl.bindVertexArray(orthoPlaneState.vao)
-    // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 }
 

@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/gnikoloff/webgl-mipmaps-explainer#readme",
   "dependencies": {
-    "gl-matrix": "^3.4.3"
+    "gl-matrix": "^3.4.3",
+    "tweakpane": "^3.0.7"
   }
 }
