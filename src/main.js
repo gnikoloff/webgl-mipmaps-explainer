@@ -42,7 +42,7 @@ const PERSP_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
   useAnisotropyFiltering: true,
-  uvScale: 3,
+  uvScale: 2,
   mipBias: 0,
   msaa: true,
 }
