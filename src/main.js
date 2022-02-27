@@ -8,8 +8,6 @@ import { makeMipmapTexture } from './make-mipmap-texture'
 import VERTEX_SHADER from './shader.vert'
 import FRAGMENT_SHADER from './shader.frag'
 
-import './style.css'
-
 // prettier-ignore
 const PLANE_VERTICES = new Float32Array([
    // position   uv
