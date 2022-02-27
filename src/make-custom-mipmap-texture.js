@@ -43,8 +43,6 @@ const makeMipmapCanvas = (width, height, level) => {
       ? refFontSize * widthDelta
       : refFontSize * heightDelta
 
-  console.log(fontSize)
-
   ctx.strokeStyle = '#fff'
   ctx.lineWidth = lineWidth
 
