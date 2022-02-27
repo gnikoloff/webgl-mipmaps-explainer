@@ -80,35 +80,35 @@ pane
       cancelAnimationFrame(updateRafID)
     }
   })
-pane
-  .addButton({
-    title: 'Disable All Optimisations',
-  })
-  .on('click', () => {
-    ORTHO_PLANE_PARAMS.msaa = false
-    orthoPlaneMinFilterChooser.value = gl.LINEAR
+// pane
+//   .addButton({
+//     title: 'Disable All Optimisations',
+//   })
+//   .on('click', () => {
+//     ORTHO_PLANE_PARAMS.msaa = false
+//     orthoPlaneMinFilterChooser.value = gl.LINEAR
 
-    PERSP_PLANE_PARAMS.msaa = false
-    PERSP_PLANE_PARAMS.useAnisotropyFiltering = false
-    perspPlaneMinFilterChooser.value = gl.LINEAR
+//     PERSP_PLANE_PARAMS.msaa = false
+//     PERSP_PLANE_PARAMS.useAnisotropyFiltering = false
+//     perspPlaneMinFilterChooser.value = gl.LINEAR
 
-    pane.refresh()
-  })
-pane
-  .addButton({
-    title: 'Enable All Optimisations',
-  })
-  .on('click', () => {
-    ORTHO_PLANE_PARAMS.msaa = true
-    orthoPlaneMinFilterChooser.value = gl.LINEAR_MIPMAP_LINEAR
+//     pane.refresh()
+//   })
+// pane
+//   .addButton({
+//     title: 'Enable All Optimisations',
+//   })
+//   .on('click', () => {
+//     ORTHO_PLANE_PARAMS.msaa = true
+//     orthoPlaneMinFilterChooser.value = gl.LINEAR_MIPMAP_LINEAR
 
-    PERSP_PLANE_PARAMS.msaa = true
-    PERSP_PLANE_PARAMS.useAnisotropyFiltering = true
-    perspPlaneMinFilterChooser.value = gl.LINEAR_MIPMAP_LINEAR
+//     PERSP_PLANE_PARAMS.msaa = true
+//     PERSP_PLANE_PARAMS.useAnisotropyFiltering = true
+//     perspPlaneMinFilterChooser.value = gl.LINEAR_MIPMAP_LINEAR
 
-    pane.refresh()
-  })
-pane.addSeparator()
+//     pane.refresh()
+//   })
+// pane.addSeparator()
 const orthoPlaneFolder = pane.addFolder({
   title: 'Orthographic Plane',
   expanded: innerWidth > 800,
