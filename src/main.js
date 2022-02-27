@@ -32,12 +32,14 @@ const ORTHO_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
   uvScale: 1,
+  mipBias: 0,
 }
 const PERSP_PLANE_PARAMS = {
   customMipmaps: true,
   shouldRender: true,
   useAnisotropyFiltering: true,
   uvScale: 3,
+  mipBias: 0,
 }
 
 let oldTime = 0
@@ -91,6 +93,16 @@ orthoPlaneFolder
     gl.useProgram(orthoPlaneState.program)
     gl.uniform1f(orthoPlaneState.uniforms.uUVScale, value)
   })
+orthoPlaneFolder
+  .addInput(ORTHO_PLANE_PARAMS, 'mipBias', {
+    label: 'Mip bias',
+    min: 0,
+    max: 10,
+  })
+  .on('change', ({ value }) => {
+    gl.useProgram(orthoPlaneState.program)
+    gl.uniform1f(orthoPlaneState.uniforms.uMipBias, value)
+  })
 
 const perpPlaneFolder = pane.addFolder({
   title: 'Perspective plane',
@@ -125,6 +137,16 @@ perpPlaneFolder
   .on('change', ({ value }) => {
     gl.useProgram(perspPlaneState.program)
     gl.uniform1f(perspPlaneState.uniforms.uUVScale, value)
+  })
+perpPlaneFolder
+  .addInput(PERSP_PLANE_PARAMS, 'mipBias', {
+    label: 'Mip bias',
+    min: 0,
+    max: 10,
+  })
+  .on('change', ({ value }) => {
+    gl.useProgram(perspPlaneState.program)
+    gl.uniform1f(perspPlaneState.uniforms.uMipBias, value)
   })
 if (gl.maxAnisotropy > 1) {
   perpPlaneFolder
@@ -212,6 +234,7 @@ const perspPlaneState = {}
   )
   const uUVScale = gl.getUniformLocation(program, 'uUVScale')
   const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
+  const uMipBias = gl.getUniformLocation(program, 'uMipBias')
 
   gl.useProgram(program)
 
@@ -220,6 +243,7 @@ const perspPlaneState = {}
   gl.uniform1i(uAutoMipmapTexture, 0)
   gl.uniform1f(uUVScale, ORTHO_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
+  gl.uniform1f(uMipBias, 0)
 
   gl.useProgram(null)
 
@@ -231,6 +255,7 @@ const perspPlaneState = {}
     uAutoMipmapTexture,
     uUVScale,
     uTexOffset,
+    uMipBias,
   }
   orthoPlaneState.matrix = {
     projectionViewMatrix,
@@ -308,6 +333,7 @@ const perspPlaneState = {}
   )
   const uUVScale = gl.getUniformLocation(program, 'uUVScale')
   const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
+  const uMipBias = gl.getUniformLocation(program, 'uMipBias')
 
   gl.useProgram(program)
 
@@ -316,6 +342,7 @@ const perspPlaneState = {}
   gl.uniform1i(uAutoMipmapTexture, 0)
   gl.uniform1f(uUVScale, PERSP_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
+  gl.uniform1f(uMipBias, 0)
 
   gl.useProgram(null)
 
@@ -327,6 +354,7 @@ const perspPlaneState = {}
     uAutoMipmapTexture,
     uUVScale,
     uTexOffset,
+    uMipBias,
   }
   perspPlaneState.matrix = {
     projectionViewMatrix,
