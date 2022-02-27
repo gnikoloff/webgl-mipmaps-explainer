@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.17e50649.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebGL Mipmap Explainer</title>
+    <script type="module" crossorigin src="/assets/index.fe91d7c8.js"></script>
+    <link rel="modulepreload" href="/assets/vendor.7d86c8f9.js">
+    <link rel="stylesheet" href="/assets/index.069c656f.css">
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="c"></canvas>
+
+      <section id="info">
+        <h1>Sharper Mipmapping using Shader Based Supersampling</h1>
+        <p>
+          Technique and visuals taken from
+          <a
+            href="https://bgolus.medium.com/sharper-mipmapping-using-shader-based-supersampling-ed7aadb47bec"
+            >this article</a
+          >
+          by
+          <a href="https://twitter.com/bgolus?s=20&t=1wrNx_aKqZ9uadeDdpOCxQ"
+            >Ben Golus</a
+          >.
+        </p>
+        <p>
+          Implemented by
+          <a href="https://georgi-nikolov.com/">Georgi Nikolov</a>.
+        </p>
+      </section>
+    </div>
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-221505241-1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+
+      gtag('config', 'UA-221505241-1')
+    </script>
+  </body>
+</html>
