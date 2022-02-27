@@ -36,13 +36,15 @@ const ORTHO_PLANE_PARAMS = {
   shouldRender: true,
   uvScale: 1,
   mipBias: 0,
+  msaa: true,
 }
 const PERSP_PLANE_PARAMS = {
-  customMipmaps: true,
+  customMipmaps: false,
   shouldRender: true,
   useAnisotropyFiltering: true,
   uvScale: 3,
   mipBias: 0,
+  msaa: true,
 }
 
 let updateRafID
@@ -68,7 +70,7 @@ pane.element.parentNode.style.width = '450px'
 
 pane
   .addInput(SHARED_PARAMS, 'playAnim', {
-    label: 'Play animation',
+    label: 'Play Animation',
   })
   .on('change', ({ value }) => {
     nowTime = performance.now() / 1000
@@ -79,29 +81,57 @@ pane
       cancelAnimationFrame(updateRafID)
     }
   })
+pane
+  .addButton({
+    title: 'Disable All Optimisations',
+  })
+  .on('click', () => {
+    ORTHO_PLANE_PARAMS.msaa = false
+    orthoPlaneMinFilterChooser.value = gl.LINEAR
+
+    PERSP_PLANE_PARAMS.msaa = false
+    PERSP_PLANE_PARAMS.useAnisotropyFiltering = false
+    perspPlaneMinFilterChooser.value = gl.LINEAR
+
+    pane.refresh()
+  })
+pane
+  .addButton({
+    title: 'Enable All Optimisations',
+  })
+  .on('click', () => {
+    ORTHO_PLANE_PARAMS.msaa = true
+    orthoPlaneMinFilterChooser.value = gl.LINEAR_MIPMAP_LINEAR
+
+    PERSP_PLANE_PARAMS.msaa = true
+    PERSP_PLANE_PARAMS.useAnisotropyFiltering = true
+    perspPlaneMinFilterChooser.value = gl.LINEAR_MIPMAP_LINEAR
+
+    pane.refresh()
+  })
+pane.addSeparator()
 const orthoPlaneFolder = pane.addFolder({
   title: 'Orthographic Plane',
 })
 orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'shouldRender', {
-  label: 'Should render',
+  label: 'Should Render',
 })
 orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'customMipmaps', {
-  label: 'Debug mipmaps',
+  label: 'Debug Mipmaps',
 })
-orthoPlaneFolder
-  .addBlade({
-    view: 'list',
-    label: 'Min filter mode',
-    options: MIN_FILTER_MODES,
-    value: 0x2703, // gl.LINEAR_MIPMAP_LINEAR
-  })
-  .on('change', ({ value }) => {
-    gl.bindTexture(gl.TEXTURE_2D, orthoAutoMipmapTexture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+const orthoPlaneMinFilterChooser = orthoPlaneFolder.addBlade({
+  view: 'list',
+  label: 'Min Filter Mode',
+  options: MIN_FILTER_MODES,
+  value: 0x2703, // gl.LINEAR_MIPMAP_LINEAR
+})
+orthoPlaneMinFilterChooser.on('change', ({ value }) => {
+  gl.bindTexture(gl.TEXTURE_2D, orthoAutoMipmapTexture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
 
-    gl.bindTexture(gl.TEXTURE_2D, orthoCustomMipmapTexture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
-  })
+  gl.bindTexture(gl.TEXTURE_2D, orthoCustomMipmapTexture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+})
 orthoPlaneFolder
   .addInput(ORTHO_PLANE_PARAMS, 'uvScale', {
     label: 'UV Scale',
@@ -115,7 +145,7 @@ orthoPlaneFolder
   })
 orthoPlaneFolder
   .addInput(ORTHO_PLANE_PARAMS, 'mipBias', {
-    label: 'Mip bias',
+    label: 'Mip Bias',
     min: 0,
     max: 10,
     step: 0.025,
@@ -124,30 +154,37 @@ orthoPlaneFolder
     gl.useProgram(orthoPlaneState.program)
     gl.uniform1f(orthoPlaneState.uniforms.uMipBias, value)
   })
-
-const perpPlaneFolder = pane.addFolder({
-  title: 'Perspective plane',
-})
-perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'shouldRender', {
-  label: 'Should render',
-})
-perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'customMipmaps', {
-  label: 'Debug mipmaps',
-})
-perpPlaneFolder
-  .addBlade({
-    view: 'list',
-    label: 'Min filter mode',
-    options: MIN_FILTER_MODES,
-    value: 0x2703, // gl.LINEAR_MIPMAP_LINEAR
+orthoPlaneFolder
+  .addInput(ORTHO_PLANE_PARAMS, 'msaa', {
+    label: 'Multi Sample Anti-Aliasing',
   })
   .on('change', ({ value }) => {
-    gl.bindTexture(gl.TEXTURE_2D, perspAutoMipmapTexture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
-
-    gl.bindTexture(gl.TEXTURE_2D, perspCustomMipmapTexture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+    gl.useProgram(orthoPlaneState.program)
+    gl.uniform1f(orthoPlaneState.uniforms.uMSAAMixFactor, value ? 1 : 0)
   })
+
+const perpPlaneFolder = pane.addFolder({
+  title: 'Perspective Plane',
+})
+perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'shouldRender', {
+  label: 'Should Render',
+})
+perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'customMipmaps', {
+  label: 'Debug Mipmaps',
+})
+const perspPlaneMinFilterChooser = perpPlaneFolder.addBlade({
+  view: 'list',
+  label: 'Min Filter Mode',
+  options: MIN_FILTER_MODES,
+  value: 0x2703, // gl.LINEAR_MIPMAP_LINEAR
+})
+perspPlaneMinFilterChooser.on('change', ({ value }) => {
+  gl.bindTexture(gl.TEXTURE_2D, perspAutoMipmapTexture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+
+  gl.bindTexture(gl.TEXTURE_2D, perspCustomMipmapTexture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+})
 perpPlaneFolder
   .addInput(PERSP_PLANE_PARAMS, 'uvScale', {
     label: 'UV Scale',
@@ -161,7 +198,7 @@ perpPlaneFolder
   })
 perpPlaneFolder
   .addInput(PERSP_PLANE_PARAMS, 'mipBias', {
-    label: 'Mip bias',
+    label: 'Mip Bias',
     min: 0,
     max: 10,
     step: 0.025,
@@ -173,7 +210,7 @@ perpPlaneFolder
 if (gl.maxAnisotropy > 1) {
   perpPlaneFolder
     .addInput(PERSP_PLANE_PARAMS, 'useAnisotropyFiltering', {
-      label: `Turn on anisotropy filtering (${gl.maxAnisotropy}x)`,
+      label: `Turn on Anisotropy Filtering (${gl.maxAnisotropy}x)`,
     })
     .on('change', ({ value }) => {
       gl.texParameterf(
@@ -183,6 +220,14 @@ if (gl.maxAnisotropy > 1) {
       )
     })
 }
+perpPlaneFolder
+  .addInput(PERSP_PLANE_PARAMS, 'msaa', {
+    label: 'Multi Sample Anti-Aliasing',
+  })
+  .on('change', ({ value }) => {
+    gl.useProgram(perspPlaneState.program)
+    gl.uniform1f(perspPlaneState.uniforms.uMSAAMixFactor, value ? 1 : 0)
+  })
 
 const orthoAutoMipmapTexture = makeMipmapTexture(gl)
 const orthoCustomMipmapTexture = makeCustomMipmapTexture(gl)
@@ -250,22 +295,21 @@ const perspPlaneState = {}
     'uProjectionViewMatrix',
   )
   const uModelMatrix = gl.getUniformLocation(program, 'uModelMatrix')
-  const uAutoMipmapTexture = gl.getUniformLocation(
-    program,
-    'uAutoMipmapTexture',
-  )
+  const uTexture = gl.getUniformLocation(program, 'uTexture')
   const uUVScale = gl.getUniformLocation(program, 'uUVScale')
   const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
   const uMipBias = gl.getUniformLocation(program, 'uMipBias')
+  const uMSAAMixFactor = gl.getUniformLocation(program, 'uMSAAMixFactor')
 
   gl.useProgram(program)
 
   gl.uniformMatrix4fv(uProjectionViewMatrix, false, projectionViewMatrix)
   gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix)
-  gl.uniform1i(uAutoMipmapTexture, 0)
+  gl.uniform1i(uTexture, 0)
   gl.uniform1f(uUVScale, ORTHO_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
   gl.uniform1f(uMipBias, 0)
+  gl.uniform1f(uMSAAMixFactor, 1)
 
   gl.useProgram(null)
 
@@ -274,10 +318,11 @@ const perspPlaneState = {}
   orthoPlaneState.uniforms = {
     uProjectionViewMatrix,
     uModelMatrix,
-    uAutoMipmapTexture,
+    uTexture,
     uUVScale,
     uTexOffset,
     uMipBias,
+    uMSAAMixFactor,
   }
   orthoPlaneState.matrix = {
     projectionViewMatrix,
@@ -349,22 +394,21 @@ const perspPlaneState = {}
     'uProjectionViewMatrix',
   )
   const uModelMatrix = gl.getUniformLocation(program, 'uModelMatrix')
-  const uAutoMipmapTexture = gl.getUniformLocation(
-    program,
-    'uAutoMipmapTexture',
-  )
+  const uTexture = gl.getUniformLocation(program, 'uTexture')
   const uUVScale = gl.getUniformLocation(program, 'uUVScale')
   const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
   const uMipBias = gl.getUniformLocation(program, 'uMipBias')
+  const uMSAAMixFactor = gl.getUniformLocation(program, 'uMSAAMixFactor')
 
   gl.useProgram(program)
 
   gl.uniformMatrix4fv(uProjectionViewMatrix, false, projectionViewMatrix)
   gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix)
-  gl.uniform1i(uAutoMipmapTexture, 0)
+  gl.uniform1i(uTexture, 0)
   gl.uniform1f(uUVScale, PERSP_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
   gl.uniform1f(uMipBias, 0)
+  gl.uniform1f(uMSAAMixFactor, 1)
 
   gl.useProgram(null)
 
@@ -373,10 +417,11 @@ const perspPlaneState = {}
   perspPlaneState.uniforms = {
     uProjectionViewMatrix,
     uModelMatrix,
-    uAutoMipmapTexture,
+    uTexture,
     uUVScale,
     uTexOffset,
     uMipBias,
+    uMSAAMixFactor,
   }
   perspPlaneState.matrix = {
     projectionViewMatrix,

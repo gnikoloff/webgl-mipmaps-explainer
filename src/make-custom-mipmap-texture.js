@@ -8,6 +8,9 @@ const MIP_COLORS = [
   '#7f8c8d',
   '#bdc3c7',
   '#1abc9c',
+  'red',
+  'blue',
+  'green',
 ]
 
 const makeMipmapCanvas = (width, height, level) => {
@@ -39,6 +42,8 @@ const makeMipmapCanvas = (width, height, level) => {
     innerHeight < innerWidth
       ? refFontSize * widthDelta
       : refFontSize * heightDelta
+
+  console.log(fontSize)
 
   ctx.strokeStyle = '#fff'
   ctx.lineWidth = lineWidth
