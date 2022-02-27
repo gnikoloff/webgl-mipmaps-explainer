@@ -4,7 +4,7 @@
   "description": "Explore mipmap and anisotropic filtering via WebGL2",
   "main": "src/index.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },

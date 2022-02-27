@@ -20,13 +20,13 @@ const makeMipmapCanvas = (width, height, level) => {
   canvas.width = width
   canvas.height = height
 
-  canvas.setAttribute(
-    'style',
-    `
-    max-width: 100%;
-  `,
-  )
-  document.body.appendChild(canvas)
+  // canvas.setAttribute(
+  //   'style',
+  //   `
+  //   max-width: 100%;
+  // `,
+  // )
+  // document.body.appendChild(canvas)
 
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, width, height)

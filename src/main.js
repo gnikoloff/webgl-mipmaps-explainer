@@ -66,7 +66,8 @@ gl.maxAnisotropy = gl.anisotropyExtension
   : 1
 
 const pane = new Pane()
-pane.element.parentNode.style.width = '450px'
+pane.element.parentNode.style.setProperty('width', '450px')
+pane.element.parentNode.style.setProperty('max-width', '98%')
 
 pane
   .addInput(SHARED_PARAMS, 'playAnim', {
