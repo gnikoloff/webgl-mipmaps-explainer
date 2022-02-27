@@ -64,10 +64,15 @@ export const makeMipmapTexture = (
     canvas,
   )
 
-  // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-  // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+  gl.texParameterf(
+    gl.TEXTURE_2D,
+    gl.anisotropyExtension.TEXTURE_MAX_ANISOTROPY_EXT,
+    gl.maxAnisotropy,
+  )
 
   gl.generateMipmap(gl.TEXTURE_2D)
+
+  gl.bindTexture(gl.TEXTURE_2D, null)
 
   return texture
 }

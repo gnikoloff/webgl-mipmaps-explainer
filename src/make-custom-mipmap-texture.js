@@ -17,13 +17,13 @@ const makeMipmapCanvas = (width, height, level) => {
   canvas.width = width
   canvas.height = height
 
-  // canvas.setAttribute(
-  //   'style',
-  //   `
-  //   max-width: 100%;
-  // `,
-  // )
-  // document.body.appendChild(canvas)
+  canvas.setAttribute(
+    'style',
+    `
+    max-width: 100%;
+  `,
+  )
+  document.body.appendChild(canvas)
 
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, width, height)
@@ -85,8 +85,6 @@ export const makeCustomMipmapTexture = (
   width = Math.min(width, gl.MAX_TEXTURE_SIZE)
   height = Math.min(height, gl.MAX_TEXTURE_SIZE)
 
-  const mipmapLevels = 5
-
   const texture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, texture)
 
@@ -94,9 +92,12 @@ export const makeCustomMipmapTexture = (
   let mipHeight = height
 
   let i = 0
-  while (mipWidth >= 2 && mipHeight >= 2) {
+  while (mipWidth >= 2 || mipHeight >= 2) {
     mipWidth = width * Math.pow(0.5, i)
     mipHeight = height * Math.pow(0.5, i)
+
+    mipWidth = mipWidth < 1 ? Math.ceil(mipWidth) : mipWidth
+    mipHeight = mipHeight < 1 ? Math.ceil(mipHeight) : mipHeight
 
     const canvas = makeMipmapCanvas(mipWidth, mipHeight, i)
 
@@ -115,5 +116,12 @@ export const makeCustomMipmapTexture = (
     i++
   }
 
+  gl.texParameterf(
+    gl.TEXTURE_2D,
+    gl.anisotropyExtension.TEXTURE_MAX_ANISOTROPY_EXT,
+    gl.maxAnisotropy,
+  )
+
+  gl.bindTexture(gl.TEXTURE_2D, null)
   return texture
 }

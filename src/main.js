@@ -1,12 +1,14 @@
 import { mat4, vec3 } from 'gl-matrix'
+import { Pane } from 'tweakpane'
 import createProgram, { mapToRange } from './helpers'
+
 import { makeCustomMipmapTexture } from './make-custom-mipmap-texture'
-import './style.css'
+import { makeMipmapTexture } from './make-mipmap-texture'
 
 import VERTEX_SHADER from './shader.vert'
 import FRAGMENT_SHADER from './shader.frag'
-import { makeMipmapTexture } from './make-mipmap-texture'
-import { Pane } from 'tweakpane'
+
+import './style.css'
 
 // prettier-ignore
 const PLANE_VERTICES = new Float32Array([
@@ -17,11 +19,40 @@ const PLANE_VERTICES = new Float32Array([
   -1.0, -1.0,    0.0, 0.0,
 ])
 
+const MIN_FILTER_MODES = [
+  { value: 0x2600, text: 'gl.NEAREST' },
+  { value: 0x2601, text: 'gl.LINEAR' },
+  { value: 0x2700, text: 'gl.NEAREST_MIPMAP_NEAREST' },
+  { value: 0x2701, text: 'gl.LINEAR_MIPMAP_NEAREST' },
+  { value: 0x2702, text: 'gl.NEAREST_MIPMAP_LINEAR' },
+  { value: 0x2703, text: 'gl.LINEAR_MIPMAP_LINEAR' },
+]
+
 const ORTHO_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
+  uvScale: 1,
 }
-const PERSP_PLANE_PARAMS = { customMipmaps: false, shouldRender: true }
+const PERSP_PLANE_PARAMS = {
+  customMipmaps: true,
+  shouldRender: true,
+  useAnisotropyFiltering: true,
+  uvScale: 3,
+}
+
+let oldTime = 0
+
+const $canvas = document.getElementById('c')
+
+/** @type {WebGL2RenderingContext} */
+const gl = $canvas.getContext('webgl2', { antialias: true })
+gl.anisotropyExtension =
+  gl.getExtension('EXT_texture_filter_anisotropic') ||
+  gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
+  gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
+gl.maxAnisotropy = gl.anisotropyExtension
+  ? gl.getParameter(gl.anisotropyExtension.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+  : 1
 
 const pane = new Pane()
 pane.element.parentNode.style.width = '450px'
@@ -29,32 +60,91 @@ pane.element.parentNode.style.width = '450px'
 const orthoPlaneFolder = pane.addFolder({
   title: 'Orthographic Plane',
 })
-orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'customMipmaps', {
-  label: 'Custom mipmaps',
-})
 orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'shouldRender', {
   label: 'Should render',
 })
+orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'customMipmaps', {
+  label: 'Debug mipmaps',
+})
+orthoPlaneFolder
+  .addBlade({
+    view: 'list',
+    label: 'Min filter mode',
+    options: MIN_FILTER_MODES,
+    value: 0x2703, // gl.LINEAR_MIPMAP_LINEAR
+  })
+  .on('change', ({ value }) => {
+    gl.bindTexture(gl.TEXTURE_2D, orthoAutoMipmapTexture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+
+    gl.bindTexture(gl.TEXTURE_2D, orthoCustomMipmapTexture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+  })
+orthoPlaneFolder
+  .addInput(ORTHO_PLANE_PARAMS, 'uvScale', {
+    label: 'UV Scale',
+    min: 1,
+    max: 10,
+    step: 0.5,
+  })
+  .on('change', ({ value }) => {
+    gl.useProgram(orthoPlaneState.program)
+    gl.uniform1f(orthoPlaneState.uniforms.uUVScale, value)
+  })
 
 const perpPlaneFolder = pane.addFolder({
   title: 'Perspective plane',
 })
-perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'customMipmaps', {
-  label: 'Custom mipmaps',
-})
 perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'shouldRender', {
-  title: 'Should render',
+  label: 'Should render',
 })
+perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'customMipmaps', {
+  label: 'Debug mipmaps',
+})
+perpPlaneFolder
+  .addBlade({
+    view: 'list',
+    label: 'Min filter mode',
+    options: MIN_FILTER_MODES,
+    value: 0x2703, // gl.LINEAR_MIPMAP_LINEAR
+  })
+  .on('change', ({ value }) => {
+    gl.bindTexture(gl.TEXTURE_2D, perspAutoMipmapTexture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
 
-let oldTime = 0
+    gl.bindTexture(gl.TEXTURE_2D, perspCustomMipmapTexture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, value)
+  })
+perpPlaneFolder
+  .addInput(PERSP_PLANE_PARAMS, 'uvScale', {
+    label: 'UV Scale',
+    min: 1,
+    max: 50,
+    step: 0.5,
+  })
+  .on('change', ({ value }) => {
+    gl.useProgram(perspPlaneState.program)
+    gl.uniform1f(perspPlaneState.uniforms.uUVScale, value)
+  })
+if (gl.maxAnisotropy > 1) {
+  perpPlaneFolder
+    .addInput(PERSP_PLANE_PARAMS, 'useAnisotropyFiltering', {
+      label: `Turn on anisotropy filtering (${gl.maxAnisotropy}x)`,
+    })
+    .on('change', ({ value }) => {
+      gl.texParameterf(
+        gl.TEXTURE_2D,
+        gl.anisotropyExtension.TEXTURE_MAX_ANISOTROPY_EXT,
+        value ? gl.maxAnisotropy : 1,
+      )
+    })
+}
 
-const $canvas = document.getElementById('c')
+const orthoAutoMipmapTexture = makeMipmapTexture(gl)
+const orthoCustomMipmapTexture = makeCustomMipmapTexture(gl)
 
-/** @type {WebGL2RenderingContext} */
-const gl = $canvas.getContext('webgl2')
-
-const autoMipmapTexture = makeMipmapTexture(gl)
-const customMipmapTexture = makeCustomMipmapTexture(gl)
+const perspAutoMipmapTexture = makeMipmapTexture(gl)
+const perspCustomMipmapTexture = makeCustomMipmapTexture(gl)
 
 const orthoPlaneState = {}
 const perspPlaneState = {}
@@ -128,7 +218,7 @@ const perspPlaneState = {}
   gl.uniformMatrix4fv(uProjectionViewMatrix, false, projectionViewMatrix)
   gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix)
   gl.uniform1i(uAutoMipmapTexture, 0)
-  gl.uniform1f(uUVScale, 1)
+  gl.uniform1f(uUVScale, ORTHO_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
 
   gl.useProgram(null)
@@ -224,7 +314,7 @@ const perspPlaneState = {}
   gl.uniformMatrix4fv(uProjectionViewMatrix, false, projectionViewMatrix)
   gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix)
   gl.uniform1i(uAutoMipmapTexture, 0)
-  gl.uniform1f(uUVScale, 3)
+  gl.uniform1f(uUVScale, PERSP_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
 
   gl.useProgram(null)
@@ -256,7 +346,7 @@ function renderFrame(ts) {
   requestAnimationFrame(renderFrame)
 
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
-  gl.clearColor(0.1, 0.1, 0.1, 1.0)
+  gl.clearColor(0, 0, 0, 1.0)
   gl.clear(gl.COLOR_BUFFER_BIT)
 
   // lifted from https://stackoverflow.com/a/3018582
@@ -304,8 +394,8 @@ function renderFrame(ts) {
     gl.bindTexture(
       gl.TEXTURE_2D,
       PERSP_PLANE_PARAMS.customMipmaps
-        ? customMipmapTexture
-        : autoMipmapTexture,
+        ? perspCustomMipmapTexture
+        : perspAutoMipmapTexture,
     )
 
     gl.bindVertexArray(perspPlaneState.vao)
@@ -314,7 +404,7 @@ function renderFrame(ts) {
 
   if (ORTHO_PLANE_PARAMS.shouldRender) {
     const rotation = mapToRange(pulse, 0, 1, -Math.PI * 0.25, 0)
-    const scale = mapToRange(pulse, 0, 1, 0.075, 1)
+    const scale = mapToRange(pulse, 0, 1, 0.025, 1)
 
     mat4.identity(orthoPlaneState.matrix.modelMatrix)
     mat4.rotateZ(
@@ -340,8 +430,8 @@ function renderFrame(ts) {
     gl.bindTexture(
       gl.TEXTURE_2D,
       ORTHO_PLANE_PARAMS.customMipmaps
-        ? customMipmapTexture
-        : autoMipmapTexture,
+        ? orthoCustomMipmapTexture
+        : orthoAutoMipmapTexture,
     )
 
     gl.bindVertexArray(orthoPlaneState.vao)
