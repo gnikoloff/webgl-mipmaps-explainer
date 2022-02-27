@@ -1,7 +1,7 @@
 import { mat4, vec3 } from 'gl-matrix'
 import { Pane } from 'tweakpane'
-import createProgram, { mapToRange } from './helpers'
 
+import { createProgram, mapToRange } from './helpers'
 import { makeCustomMipmapTexture } from './make-custom-mipmap-texture'
 import { makeMipmapTexture } from './make-mipmap-texture'
 
