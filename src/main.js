@@ -113,6 +113,7 @@ pane
 pane.addSeparator()
 const orthoPlaneFolder = pane.addFolder({
   title: 'Orthographic Plane',
+  expanded: innerWidth > 800,
 })
 orthoPlaneFolder.addInput(ORTHO_PLANE_PARAMS, 'shouldRender', {
   label: 'Should Render',
@@ -166,6 +167,7 @@ orthoPlaneFolder
 
 const perpPlaneFolder = pane.addFolder({
   title: 'Perspective Plane',
+  expanded: innerWidth > 800,
 })
 perpPlaneFolder.addInput(PERSP_PLANE_PARAMS, 'shouldRender', {
   label: 'Should Render',
