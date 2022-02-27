@@ -18,7 +18,7 @@ export const makeMipmapTexture = (
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, width, height)
 
-  const refLineWidth = 3
+  const refLineWidth = 4
   const widthDelta = width / innerWidth
   const lineWidth = refLineWidth * widthDelta
 

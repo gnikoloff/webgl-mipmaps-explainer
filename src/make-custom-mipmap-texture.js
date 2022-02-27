@@ -34,7 +34,7 @@ const makeMipmapCanvas = (width, height, level) => {
   const widthDelta = width / innerWidth
   const heightDelta = height / innerHeight
 
-  const refLineWidth = 3
+  const refLineWidth = 4
   const lineWidth = refLineWidth * widthDelta
 
   const refFontSize = 800
@@ -56,7 +56,10 @@ const makeMipmapCanvas = (width, height, level) => {
 
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.font = `${fontSize}px Helvetica`
+  ctx.font = `${fontSize}px ui-monospace, Menlo, Monaco, 'Cascadia Mono',
+          'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace',
+          'Source Code Pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New',
+          monospace`
   ctx.fillStyle = MIP_COLORS[level]
 
   for (let i = 1; i < gridCountX; i++) {

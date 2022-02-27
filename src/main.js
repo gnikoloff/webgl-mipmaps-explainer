@@ -30,7 +30,7 @@ const SHARED_PARAMS = {
   playAnim: true,
 }
 const ORTHO_PLANE_PARAMS = {
-  customMipmaps: false,
+  customMipmaps: true,
   shouldRender: true,
   uvScale: 1,
   mipBias: 0,
@@ -40,8 +40,8 @@ const PERSP_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
   useAnisotropyFiltering: true,
-  uvScale: 2,
-  mipBias: 0,
+  uvScale: 2.5,
+  mipBias: 0.5,
   msaa: true,
 }
 
@@ -301,6 +301,7 @@ const perspPlaneState = {}
   const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
   const uMipBias = gl.getUniformLocation(program, 'uMipBias')
   const uMSAAMixFactor = gl.getUniformLocation(program, 'uMSAAMixFactor')
+  const uMSAAUVOffsets = gl.getUniformLocation(program, 'uMSAAUVOffsets')
 
   gl.useProgram(program)
 
@@ -311,6 +312,11 @@ const perspPlaneState = {}
   gl.uniform2f(uTexOffset, 0, 0)
   gl.uniform1f(uMipBias, 0)
   gl.uniform1f(uMSAAMixFactor, 1)
+  gl.uniform2f(
+    uMSAAUVOffsets,
+    0.125 * devicePixelRatio,
+    0.375 * devicePixelRatio,
+  )
 
   gl.useProgram(null)
 
@@ -324,6 +330,7 @@ const perspPlaneState = {}
     uTexOffset,
     uMipBias,
     uMSAAMixFactor,
+    uMSAAUVOffsets,
   }
   orthoPlaneState.matrix = {
     projectionViewMatrix,
@@ -400,6 +407,7 @@ const perspPlaneState = {}
   const uTexOffset = gl.getUniformLocation(program, 'uTexOffset')
   const uMipBias = gl.getUniformLocation(program, 'uMipBias')
   const uMSAAMixFactor = gl.getUniformLocation(program, 'uMSAAMixFactor')
+  const uMSAAUVOffsets = gl.getUniformLocation(program, 'uMSAAUVOffsets')
 
   gl.useProgram(program)
 
@@ -410,6 +418,11 @@ const perspPlaneState = {}
   gl.uniform2f(uTexOffset, 0, 0)
   gl.uniform1f(uMipBias, 0)
   gl.uniform1f(uMSAAMixFactor, 1)
+  gl.uniform2f(
+    uMSAAUVOffsets,
+    0.125 * devicePixelRatio,
+    0.375 * devicePixelRatio,
+  )
 
   gl.useProgram(null)
 
@@ -423,6 +436,7 @@ const perspPlaneState = {}
     uTexOffset,
     uMipBias,
     uMSAAMixFactor,
+    uMSAAUVOffsets,
   }
   perspPlaneState.matrix = {
     projectionViewMatrix,
