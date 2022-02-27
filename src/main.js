@@ -28,6 +28,9 @@ const MIN_FILTER_MODES = [
   { value: 0x2703, text: 'gl.LINEAR_MIPMAP_LINEAR' },
 ]
 
+const SHARED_PARAMS = {
+  playAnim: true,
+}
 const ORTHO_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
@@ -42,7 +45,11 @@ const PERSP_PLANE_PARAMS = {
   mipBias: 0,
 }
 
+let updateRafID
+let rafID
+let nowTime = 0
 let oldTime = 0
+let elapsedTime = 0
 
 const $canvas = document.getElementById('c')
 
@@ -59,6 +66,19 @@ gl.maxAnisotropy = gl.anisotropyExtension
 const pane = new Pane()
 pane.element.parentNode.style.width = '450px'
 
+pane
+  .addInput(SHARED_PARAMS, 'playAnim', {
+    label: 'Play animation',
+  })
+  .on('change', ({ value }) => {
+    nowTime = performance.now() / 1000
+    oldTime = performance.now() / 1000
+    if (value) {
+      updateRafID = requestAnimationFrame(updateFrame)
+    } else {
+      cancelAnimationFrame(updateRafID)
+    }
+  })
 const orthoPlaneFolder = pane.addFolder({
   title: 'Orthographic Plane',
 })
@@ -98,6 +118,7 @@ orthoPlaneFolder
     label: 'Mip bias',
     min: 0,
     max: 10,
+    step: 0.025,
   })
   .on('change', ({ value }) => {
     gl.useProgram(orthoPlaneState.program)
@@ -143,6 +164,7 @@ perpPlaneFolder
     label: 'Mip bias',
     min: 0,
     max: 10,
+    step: 0.025,
   })
   .on('change', ({ value }) => {
     gl.useProgram(perspPlaneState.program)
@@ -360,57 +382,67 @@ const perspPlaneState = {}
     projectionViewMatrix,
     modelMatrix,
   }
+  perspPlaneState.texOffsetY = 0
 }
 
 sizeCanvas()
 addEventListener('resize', sizeCanvas)
-requestAnimationFrame(renderFrame)
+updateRafID = requestAnimationFrame(updateFrame)
+rafID = requestAnimationFrame(renderFrame)
 
-function renderFrame(ts) {
-  ts /= 1000
-  const dt = ts - oldTime
-  oldTime = ts
+function updateFrame() {
+  updateRafID = requestAnimationFrame(updateFrame)
 
-  requestAnimationFrame(renderFrame)
+  nowTime = performance.now() / 1000
+  const dt = nowTime - oldTime
+  oldTime = nowTime
+
+  elapsedTime += dt
+
+  // lifted from https://stackoverflow.com/a/3018582
+  const pulse = (1 + Math.sin(Math.PI * 2 * elapsedTime * 0.1)) / 2
+
+  if (SHARED_PARAMS.playAnim) {
+    const rotation = mapToRange(pulse, 0, 1, -Math.PI * 0.25, 0)
+    const scale = mapToRange(pulse, 0, 1, 0.025, 1)
+
+    mat4.identity(orthoPlaneState.matrix.modelMatrix)
+    mat4.rotateZ(
+      orthoPlaneState.matrix.modelMatrix,
+      orthoPlaneState.matrix.modelMatrix,
+      rotation,
+    )
+
+    mat4.scale(
+      orthoPlaneState.matrix.modelMatrix,
+      orthoPlaneState.matrix.modelMatrix,
+      vec3.fromValues(scale, scale, 1),
+    )
+
+    perspPlaneState.texOffsetY = elapsedTime * 0.1
+  }
+}
+
+function renderFrame() {
+  rafID = requestAnimationFrame(renderFrame)
 
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
   gl.clearColor(0, 0, 0, 1.0)
   gl.clear(gl.COLOR_BUFFER_BIT)
 
-  // lifted from https://stackoverflow.com/a/3018582
-  const pulse = (1 + Math.sin(Math.PI * 2 * ts * 0.1)) / 2
-
   // draw perspective floor plane
   if (PERSP_PLANE_PARAMS.shouldRender) {
-    const rotation = mapToRange(pulse, 0, 1, 0, Math.PI * 0.25)
-    const scale = mapToRange(pulse, 0, 1, 0.1, 1)
-
-    // mat4.identity(perspPlaneState.matrix.modelMatrix)
-    // mat4.rotateZ(
-    //   perspPlaneState.matrix.modelMatrix,
-    //   perspPlaneState.matrix.modelMatrix,
-    //   rotation,
-    // )
-
-    // mat4.scale(
-    //   perspPlaneState.matrix.modelMatrix,
-    //   perspPlaneState.matrix.modelMatrix,
-    //   vec3.fromValues(scale, scale, 1),
-    // )
-
-    // gl.useProgram(perspPlaneState.program)
-    // gl.uniformMatrix4fv(
-    //   perspPlaneState.uniforms.uModelMatrix,
-    //   false,
-    //   perspPlaneState.matrix.modelMatrix,
-    // )
-
     gl.bindVertexArray(perspPlaneState.vao)
 
     gl.useProgram(perspPlaneState.program)
 
-    const texSpeed = ts * 0.2
-    gl.uniform2f(perspPlaneState.uniforms.uTexOffset, 0, texSpeed)
+    if (SHARED_PARAMS.playAnim) {
+      gl.uniform2f(
+        perspPlaneState.uniforms.uTexOffset,
+        0,
+        perspPlaneState.texOffsetY,
+      )
+    }
 
     gl.uniformMatrix4fv(
       perspPlaneState.uniforms.uModelMatrix,
@@ -431,22 +463,6 @@ function renderFrame(ts) {
   }
 
   if (ORTHO_PLANE_PARAMS.shouldRender) {
-    const rotation = mapToRange(pulse, 0, 1, -Math.PI * 0.25, 0)
-    const scale = mapToRange(pulse, 0, 1, 0.025, 1)
-
-    mat4.identity(orthoPlaneState.matrix.modelMatrix)
-    mat4.rotateZ(
-      orthoPlaneState.matrix.modelMatrix,
-      orthoPlaneState.matrix.modelMatrix,
-      rotation,
-    )
-
-    mat4.scale(
-      orthoPlaneState.matrix.modelMatrix,
-      orthoPlaneState.matrix.modelMatrix,
-      vec3.fromValues(scale, scale, 1),
-    )
-
     gl.useProgram(orthoPlaneState.program)
     gl.uniformMatrix4fv(
       orthoPlaneState.uniforms.uModelMatrix,
