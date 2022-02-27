@@ -17,8 +17,8 @@ const makeMipmapCanvas = (width, height, level) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
 
-  canvas.width = width
-  canvas.height = height
+  canvas.width = width * devicePixelRatio
+  canvas.height = height * devicePixelRatio
 
   // canvas.setAttribute(
   //   'style',
@@ -56,10 +56,7 @@ const makeMipmapCanvas = (width, height, level) => {
 
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.font = `${fontSize}px ui-monospace, Menlo, Monaco, 'Cascadia Mono',
-          'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace',
-          'Source Code Pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New',
-          monospace`
+  ctx.font = `${fontSize}px sans-serif`
   ctx.fillStyle = MIP_COLORS[level]
 
   for (let i = 1; i < gridCountX; i++) {
@@ -77,6 +74,12 @@ const makeMipmapCanvas = (width, height, level) => {
     ctx.lineTo(width, y)
     ctx.stroke()
   }
+
+  // const refOffsetY = 100
+  // const offsetY =
+  //   innerHeight < innerWidth
+  //     ? refOffsetY * widthDelta
+  //     : refOffsetY * heightDelta
 
   ctx.fillText(level, width / 2, height / 2)
 
