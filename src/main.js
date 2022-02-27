@@ -39,7 +39,7 @@ const ORTHO_PLANE_PARAMS = {
 const PERSP_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
-  useAnisotropyFiltering: true,
+  useAnisotropyFiltering: false,
   uvScale: 2.5,
   mipBias: 0.5,
   msaa: true,
@@ -54,7 +54,7 @@ let elapsedTime = 0
 const $canvas = document.getElementById('c')
 
 /** @type {WebGL2RenderingContext} */
-const gl = $canvas.getContext('webgl2', { antialias: true })
+const gl = $canvas.getContext('webgl2', { antialias: false })
 gl.anisotropyExtension =
   gl.getExtension('EXT_texture_filter_anisotropic') ||
   gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
@@ -314,8 +314,8 @@ const perspPlaneState = {}
   gl.uniform1f(uMSAAMixFactor, 1)
   gl.uniform2f(
     uMSAAUVOffsets,
-    0.125 * devicePixelRatio,
-    0.375 * devicePixelRatio,
+    0.125 * (devicePixelRatio > 1 ? devicePixelRatio * 1.5 : 1),
+    0.375 * (devicePixelRatio > 1 ? devicePixelRatio * 1.5 : 1),
   )
 
   gl.useProgram(null)
@@ -420,8 +420,8 @@ const perspPlaneState = {}
   gl.uniform1f(uMSAAMixFactor, 1)
   gl.uniform2f(
     uMSAAUVOffsets,
-    0.125 * devicePixelRatio,
-    0.375 * devicePixelRatio,
+    0.125 * (devicePixelRatio > 1 ? devicePixelRatio * 1.5 : 1),
+    0.375 * (devicePixelRatio > 1 ? devicePixelRatio * 1.5 : 1),
   )
 
   gl.useProgram(null)
