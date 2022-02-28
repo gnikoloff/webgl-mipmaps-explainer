@@ -311,7 +311,7 @@ const perspPlaneState = {}
   gl.uniform1f(uUVScale, ORTHO_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
   gl.uniform1f(uMipBias, 0)
-  gl.uniform1f(uMSAAMixFactor, 1)
+  gl.uniform1f(uMSAAMixFactor, ORTHO_PLANE_PARAMS.msa ? 1 : 0)
   gl.uniform2f(
     uMSAAUVOffsets,
     0.125 * (devicePixelRatio > 1 ? devicePixelRatio * 1.5 : 1),
@@ -416,8 +416,8 @@ const perspPlaneState = {}
   gl.uniform1i(uTexture, 0)
   gl.uniform1f(uUVScale, PERSP_PLANE_PARAMS.uvScale)
   gl.uniform2f(uTexOffset, 0, 0)
-  gl.uniform1f(uMipBias, 0)
-  gl.uniform1f(uMSAAMixFactor, 1)
+  gl.uniform1f(uMipBias, PERSP_PLANE_PARAMS.mipBias)
+  gl.uniform1f(uMSAAMixFactor, PERSP_PLANE_PARAMS.msaa ? 1 : 0)
   gl.uniform2f(
     uMSAAUVOffsets,
     0.125 * (devicePixelRatio > 1 ? devicePixelRatio * 1.5 : 1),
