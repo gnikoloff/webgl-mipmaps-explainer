@@ -39,7 +39,7 @@ const ORTHO_PLANE_PARAMS = {
 const PERSP_PLANE_PARAMS = {
   customMipmaps: false,
   shouldRender: true,
-  useAnisotropyFiltering: false,
+  useAnisotropyFiltering: true,
   uvScale: 2.5,
   mipBias: 0.5,
   msaa: true,
