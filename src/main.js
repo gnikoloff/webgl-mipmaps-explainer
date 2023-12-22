@@ -214,6 +214,13 @@ if (gl.maxAnisotropy > 1) {
       label: `Turn on Anisotropy Filtering (${gl.maxAnisotropy}x)`,
     })
     .on('change', ({ value }) => {
+      gl.bindTexture(gl.TEXTURE_2D, perspAutoMipmapTexture)
+      gl.texParameterf(
+        gl.TEXTURE_2D,
+        gl.anisotropyExtension.TEXTURE_MAX_ANISOTROPY_EXT,
+        value ? gl.maxAnisotropy : 1,
+      )
+      gl.bindTexture(gl.TEXTURE_2D, perspCustomMipmapTexture)
       gl.texParameterf(
         gl.TEXTURE_2D,
         gl.anisotropyExtension.TEXTURE_MAX_ANISOTROPY_EXT,
