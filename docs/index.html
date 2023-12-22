@@ -1,109 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/webgl-mipmaps-explainer/assets/favicon.17e50649.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebGL Mipmap Explainer</title>
 
-    <!-- Primary Meta Tags -->
-    <title>
-      Sharper Mipmapping using Shader Based Supersampling with WebGL
-    </title>
-    <meta
-      name="title"
-      content="Sharper Mipmapping using Shader Based Supersampling with WebGL"
-    />
-    <meta
-      name="description"
-      content="Demo exploring mipmapping, anisotropy filtering and shader supersampling"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/webgl-mipmaps-explainer/assets/favicon.17e50649.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebGL Mipmap Explainer</title>
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content="https://gnikoloff.github.io/webgl-mipmaps-explainer/"
-    />
-    <meta
-      property="og:title"
-      content="Sharper Mipmapping using Shader Based Supersampling with WebGL"
-    />
-    <meta
-      property="og:description"
-      content="Demo exploring mipmapping, anisotropy filtering and shader supersampling"
-    />
-    <meta
-      property="og:image"
-      content="https://gnikoloff.github.io/webgl-mipmaps-explainer/preview.png"
-    />
+  <!-- Primary Meta Tags -->
+  <title>
+    Sharper Mipmapping using Shader Based Supersampling with WebGL
+  </title>
+  <meta name="title" content="Sharper Mipmapping using Shader Based Supersampling with WebGL" />
+  <meta name="description" content="Demo exploring mipmapping, anisotropy filtering and shader supersampling" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta
-      property="twitter:url"
-      content="https://gnikoloff.github.io/webgl-mipmaps-explainer/"
-    />
-    <meta
-      property="twitter:title"
-      content="Sharper Mipmapping using Shader Based Supersampling with WebGL"
-    />
-    <meta
-      property="twitter:description"
-      content="Demo exploring mipmapping, anisotropy filtering and shader supersampling"
-    />
-    <meta
-      property="twitter:image"
-      content="https://gnikoloff.github.io/webgl-mipmaps-explainer/preview.png"
-    />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://gnikoloff.github.io/webgl-mipmaps-explainer/" />
+  <meta property="og:title" content="Sharper Mipmapping using Shader Based Supersampling with WebGL" />
+  <meta property="og:description" content="Demo exploring mipmapping, anisotropy filtering and shader supersampling" />
+  <meta property="og:image" content="https://gnikoloff.github.io/webgl-mipmaps-explainer/preview.png" />
 
-    
-    <script type="module" crossorigin src="/webgl-mipmaps-explainer/assets/index.be4dba90.js"></script>
-    <link rel="modulepreload" href="/webgl-mipmaps-explainer/assets/vendor.4cc42a2b.js">
-    <link rel="stylesheet" href="/webgl-mipmaps-explainer/assets/index.069c656f.css">
-  </head>
-  <body>
-    <div id="app">
-      <canvas id="c"></canvas>
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://gnikoloff.github.io/webgl-mipmaps-explainer/" />
+  <meta property="twitter:title" content="Sharper Mipmapping using Shader Based Supersampling with WebGL" />
+  <meta property="twitter:description"
+    content="Demo exploring mipmapping, anisotropy filtering and shader supersampling" />
+  <meta property="twitter:image" content="https://gnikoloff.github.io/webgl-mipmaps-explainer/preview.png" />
 
-      <section id="info">
-        <h1>Sharper Mipmapping using Shader Based Supersampling</h1>
-        <p>
-          Technique and visuals taken from
-          <a
-            href="https://bgolus.medium.com/sharper-mipmapping-using-shader-based-supersampling-ed7aadb47bec"
-            >this article</a
-          >
-          by
-          <a href="https://twitter.com/bgolus?s=20&t=1wrNx_aKqZ9uadeDdpOCxQ"
-            >Ben Golus</a
-          >. Check out the source code here:
-          <a
-            href="https://github.com/gnikoloff/webgl-mipmaps-explainer"
-            target="_blank"
-            >Github repo</a
-          >
-        </p>
-        <p>
-          Implemented by
-          <a href="https://georgi-nikolov.com/">Georgi Nikolov</a>.
-        </p>
-      </section>
-    </div>
-    
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=UA-221505241-1"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || []
-      function gtag() {
-        dataLayer.push(arguments)
-      }
-      gtag('js', new Date())
+  
+  <script type="module" crossorigin src="/webgl-mipmaps-explainer/assets/index.0db3cc1a.js"></script>
+  <link rel="modulepreload" href="/webgl-mipmaps-explainer/assets/vendor.94a1ba37.js">
+  <link rel="stylesheet" href="/webgl-mipmaps-explainer/assets/index.069c656f.css">
+</head>
 
-      gtag('config', 'UA-221505241-1')
-    </script>
-  </body>
+<body>
+  <div id="app">
+    <canvas id="c"></canvas>
+
+    <section id="info">
+      <h1>WebGL mipmap explainer</h1>
+      <p>
+        Technique and visuals taken from
+        <a href="https://bgolus.medium.com/sharper-mipmapping-using-shader-based-supersampling-ed7aadb47bec">this
+          article</a>
+        by
+        <a href="https://twitter.com/bgolus?s=20&t=1wrNx_aKqZ9uadeDdpOCxQ">Ben Golus</a>. Check out the source code
+        here:
+        <a href="https://github.com/gnikoloff/webgl-mipmaps-explainer" target="_blank">Github repo</a>
+      </p>
+      <p>
+        Implemented by
+        <a href="https://georgi-nikolov.com/">Georgi Nikolov</a>.
+      </p>
+    </section>
+  </div>
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-221505241-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || []
+    function gtag() {
+      dataLayer.push(arguments)
+    }
+    gtag('js', new Date())
+
+    gtag('config', 'UA-221505241-1')
+  </script>
+</body>
+
 </html>
